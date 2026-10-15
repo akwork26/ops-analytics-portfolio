@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Operations Analytics Portfolio</title>
+<style>
+  :root{--bg:#0d1117;--card:#161b22;--line:#263040;--ink:#e6edf3;--mut:#9aa7b5;--accent:#4f8cff}
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--bg);color:var(--ink);
+    font:16px/1.6 -apple-system,Segoe UI,Roboto,Helvetica,Arial,sans-serif}
+  .hero{padding:64px 24px 40px;max-width:960px;margin:0 auto}
+  .hero h1{font-size:36px;margin:0 0 10px;letter-spacing:-.5px}
+  .hero p{color:var(--mut);font-size:18px;margin:0 0 18px;max-width:680px}
+  .tags{display:flex;flex-wrap:wrap;gap:8px;margin-top:14px}
+  .tag{font-size:12px;color:var(--mut);border:1px solid var(--line);border-radius:999px;padding:4px 11px}
+  .wrap{max-width:960px;margin:0 auto;padding:0 24px 64px}
+  .grid{display:grid;grid-template-columns:repeat(3,1fr);gap:18px}
+  .card{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:20px;
+    display:flex;flex-direction:column;text-decoration:none;color:inherit;transition:.15s}
+  .card:hover{border-color:var(--accent);transform:translateY(-2px)}
+  .card h3{margin:0 0 8px;font-size:18px}
+  .card p{color:var(--mut);font-size:14px;margin:0 0 14px;flex:1}
+  .card .st{font-size:12px;color:var(--mut)}
+  .arrow{color:var(--accent);font-weight:700;margin-top:10px;font-size:14px}
+  .note{background:#13203a;border:1px solid #244;border-radius:12px;padding:14px 16px;
+    color:#bcd;font-size:13px;margin:28px 0 0}
+  h2.sec{font-size:14px;color:var(--mut);text-transform:uppercase;letter-spacing:.6px;margin:40px 0 14px}
+  footer{color:var(--mut);font-size:13px;border-top:1px solid var(--line);padding:22px 24px;text-align:center}
+  @media(max-width:760px){.grid{grid-template-columns:1fr}.hero h1{font-size:28px}}
+</style>
+</head>
+<body>
+<div class="hero">
+  <h1>Operations Analytics Portfolio</h1>
+  <p>Lightweight automation and dashboards that turn messy operational data into decisions
+     the floor can act on the same shift. Built as an Area Manager in a high-volume
+     fulfillment environment.</p>
+  <div class="tags">
+    <span class="tag">Python</span><span class="tag">pandas</span><span class="tag">data joins</span>
+    <span class="tag">Excel reporting</span><span class="tag">matplotlib</span>
+    <span class="tag">JavaScript</span><span class="tag">HTML dashboards</span>
+    <span class="tag">metric design</span><span class="tag">ops analytics</span>
+  </div>
+</div>
+
+<div class="wrap">
+  <h2 class="sec">Projects</h2>
+  <div class="grid">
+    <a class="card" href="../projects/inbound-ops-dashboard/README.md">
+      <h3>Inbound Ops Dashboard</h3>
+      <p>One live view of inbound/stow performance — productivity, quality, and coaching —
+         joined client-side from several disconnected systems.</p>
+      <span class="st">HTML · JS · client-side joins</span>
+      <span class="arrow">View project →</span>
+    </a>
+    <a class="card" href="../projects/adapts-feedback-tracker/README.md">
+      <h3>Adapts Feedback Tracker</h3>
+      <p>Automated weekly behavioral-feedback compliance tracking with per-supervisor
+         accountability and a week-over-week trend chart.</p>
+      <span class="st">Python · pandas · matplotlib</span>
+      <span class="arrow">View project →</span>
+    </a>
+    <a class="card" href="../projects/quality-wow-tracker/README.md">
+      <h3>Quality WoW Tracker</h3>
+      <p>Week-over-week quality comparison that auto-ranks the biggest improvers and
+         offenders into shareable Excel reports across multiple defect metrics.</p>
+      <span class="st">Python · pandas · openpyxl</span>
+      <span class="arrow">View project →</span>
+    </a>
+  </div>
+
+  <div class="note">
+    <strong>Live demo:</strong> open the
+    <a href="../projects/inbound-ops-dashboard/demo/index.html" style="color:#9cf">mock Inbound Ops Dashboard</a>
+    — a fully interactive, synthetic-data version you can click through (no login, no real data).
+  </div>
+
+  <div class="note">
+    <strong>Note on privacy:</strong> this is a public, sanitized showcase. All data is
+    synthetic; internal system names, URLs, authentication, and PII have been removed.
+    See <a href="SANITIZATION.md" style="color:#9cf">SANITIZATION.md</a>.
+  </div>
+</div>
+
+<footer>Built by AK Patel · MIT Licensed · Operations analytics showcase</footer>
+</body>
+</html>

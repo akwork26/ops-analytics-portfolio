@@ -1,0 +1,43 @@
+# ──────────────────────────────────────────────────────────────
+# SAFETY FIRST: never commit real/internal data or secrets
+# ──────────────────────────────────────────────────────────────
+# Real data exports (only mock/sample data belongs in this repo)
+*.csv
+!**/sample_*.csv
+!**/mock_*.csv
+*.xlsx
+!**/sample_*.xlsx
+*.xls
+*.parquet
+
+# Anything that could carry internal identifiers
+*secret*
+*cookie*
+*token*
+*credential*
+*.pem
+*.key
+.env
+.env.*
+
+# Internal working copies — do not publish
+*_INTERNAL*
+*_PRIVATE*
+*.user.js            # userscripts carry internal endpoints — keep private
+
+# Python
+__pycache__/
+*.py[cod]
+.venv/
+venv/
+env/
+.ipynb_checkpoints/
+
+# OS / editor
+.DS_Store
+Thumbs.db
+desktop.ini
+.vscode/
+.idea/
+*.tmp
+*.webext.tmp
