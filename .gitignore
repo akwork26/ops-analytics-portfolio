@@ -41,3 +41,6 @@ desktop.ini
 .idea/
 *.tmp
 *.webext.tmp
+
+# editor version snapshots
+**/.versions/
