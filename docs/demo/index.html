@@ -1,0 +1,290 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Inbound Ops Dashboard — Mock Demo</title>
+<style>
+  :root{
+    --bg:#0f141b;--panel:#161d27;--panel2:#1b2430;--line:#2a3647;
+    --ink:#e7edf5;--mut:#93a1b5;--accent:#4f8cff;
+    --good:#2e7d32;--good2:#43a047;--bad:#c62828;--bad2:#e53935;--warn:#E8A33D;
+  }
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--bg);color:var(--ink);
+    font:14px/1.45 -apple-system,Segoe UI,Roboto,Helvetica,Arial,sans-serif}
+  header{padding:16px 22px;border-bottom:1px solid var(--line);
+    display:flex;align-items:center;gap:14px;flex-wrap:wrap;background:var(--panel)}
+  header h1{font-size:17px;margin:0;font-weight:650;letter-spacing:.2px}
+  .badge{font-size:11px;color:var(--mut);border:1px solid var(--line);padding:3px 8px;border-radius:999px}
+  .mock{color:#ffcf8f;border-color:#5a4620;background:#2a2113}
+  .wrap{padding:18px 22px;max-width:1200px;margin:0 auto}
+  .controls{display:flex;gap:10px;align-items:center;flex-wrap:wrap;
+    background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:12px 14px;margin-bottom:14px}
+  .controls label{color:var(--mut);font-size:12px;margin-right:4px}
+  select,button{background:var(--panel2);color:var(--ink);border:1px solid var(--line);
+    border-radius:8px;padding:7px 10px;font-size:13px}
+  button{cursor:pointer;font-weight:600}
+  button.run{background:var(--accent);border-color:var(--accent);color:#fff}
+  button:hover{filter:brightness(1.08)}
+  .tabs{display:flex;gap:6px;border-bottom:1px solid var(--line);margin-bottom:16px;flex-wrap:wrap}
+  .tab{background:transparent;border:1px solid transparent;border-bottom:none;color:var(--mut);
+    padding:9px 16px;border-radius:10px 10px 0 0;font-weight:600;cursor:pointer}
+  .tab.active{background:var(--panel);color:var(--ink);border-color:var(--line)}
+  .panel-tab{display:none}.panel-tab.active{display:block}
+  .kpis{display:grid;grid-template-columns:repeat(6,minmax(0,1fr));gap:10px;margin-bottom:16px}
+  .kpis.k4{grid-template-columns:repeat(4,minmax(0,1fr))}
+  .kpi{background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:12px}
+  .kpi .lab{color:var(--mut);font-size:11px;text-transform:uppercase;letter-spacing:.4px}
+  .kpi .val{font-size:21px;font-weight:700;margin-top:4px}
+  .kpi .sub{font-size:11px;color:var(--mut);margin-top:2px}
+  .kpi.good .val{color:#7bd389}.kpi.bad .val{color:#ff8a8a}
+  .grid2{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:16px}
+  .panel{background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:14px;margin-bottom:16px}
+  .panel h2{font-size:13px;margin:0 0 10px;color:var(--mut);text-transform:uppercase;letter-spacing:.5px}
+  .colhead{font-size:12px;font-weight:700;letter-spacing:.3px;margin:0 0 10px;color:#cdd7e2}
+  table{width:100%;border-collapse:collapse;font-size:13px}
+  th,td{text-align:left;padding:7px 8px;border-bottom:1px solid var(--line)}
+  th{color:var(--mut);font-size:11px;text-transform:uppercase;letter-spacing:.3px;cursor:pointer;user-select:none}
+  td.n,th.n{text-align:right}
+  tbody tr:hover{background:var(--panel2)}
+  .floor-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:10px}
+  .cell{background:var(--panel2);border:1px solid var(--line);border-radius:10px;padding:10px}
+  .cell .h{font-weight:700;margin-bottom:6px}
+  .bar{height:8px;border-radius:6px;background:var(--line);overflow:hidden;margin-top:4px}
+  .bar>i{display:block;height:100%;background:linear-gradient(90deg,#3b74e0,#4f8cff)}
+  .perf-cols{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+  .scrollcol{max-height:340px;overflow:auto;border:1px solid var(--line);border-radius:10px}
+  .scrollcol h3{position:sticky;top:0;margin:0;padding:8px 10px;font-size:12px;background:var(--panel2);border-bottom:1px solid var(--line)}
+  .top h3{color:#7bd389}.bot h3{color:#ff8a8a}
+  .pill{display:inline-block;padding:1px 7px;border-radius:999px;font-size:11px;font-weight:700}
+  .pill.mk{background:#163a1d;color:#7bd389}.pill.ms{background:#3a1616;color:#ff8a8a}
+  .pill.st{background:#1d2b45;color:#9cf}.pill.wn{background:#3a3016;color:#ffcf8f}
+  .gca{background:#13203a;border:1px solid #244;border-radius:10px;padding:10px 12px;margin-bottom:12px}
+  .gca b{color:#9cf}
+  .note{color:var(--mut);font-size:12px}
+  .foot{color:var(--mut);font-size:11px;padding:10px 22px;border-top:1px solid var(--line)}
+  @media(max-width:880px){.kpis,.kpis.k4{grid-template-columns:repeat(2,1fr)}.grid2,.perf-cols{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+<header>
+  <h1>Inbound Ops Dashboard</h1>
+  <span class="badge mock">MOCK DEMO · synthetic data</span>
+  <span class="badge">DAL3-style · 4 tabs</span>
+</header>
+
+<div class="wrap">
+  <div class="controls">
+    <span><label>Date</label><select id="d"><option>Mon</option><option selected>Tue</option><option>Wed</option></select></span>
+    <span><label>Hour</label><select id="h"><option>08</option><option selected>10</option><option>12</option><option>14</option></select></span>
+    <span><label>Min</label><select id="m"><option>00</option><option selected>15</option><option>30</option><option>45</option></select></span>
+    <span><label>Floor</label><select id="f"><option value="">All</option><option>A01</option><option>A02</option><option>A03</option><option>A04</option></select></span>
+    <span><label>Side</label><select id="s"><option value="">All</option><option>East</option><option>North</option><option>West</option><option>South</option></select></span>
+    <button class="run" id="run">▶ Run</button>
+  </div>
+
+  <div class="tabs">
+    <button class="tab active" data-tab="ntp">NTP</button>
+    <button class="tab" data-tab="dock">Dock / Decant</button>
+    <button class="tab" data-tab="stow">Stow</button>
+    <button class="tab" data-tab="dea">DEA</button>
+  </div>
+
+  <!-- ===== NTP (rate bridge) ===== -->
+  <section class="panel-tab active" id="p-ntp">
+    <div class="kpis" id="ntpKpis"></div>
+    <div class="grid2">
+      <div class="panel"><h2>IB Total — Performance to Labor Plan</h2>
+        <table id="ntpBridge"><thead><tr><th>Function</th><th class="n">Volume</th><th class="n">Hours</th><th class="n">Rate</th><th class="n">Plan</th><th class="n">% to LP</th></tr></thead><tbody></tbody>
+        <tfoot><tr id="ntpTot"></tr></tfoot></table>
+      </div>
+      <div class="panel"><h2>Decant Summary</h2><table id="ntpDecant"><thead><tr><th>Metric</th><th class="n">Value</th><th class="n">Target</th><th>Status</th></tr></thead><tbody></tbody></table></div>
+    </div>
+    <div class="panel"><h2>Hourly Rate Bridge (ETI vs Plan)</h2>
+      <table id="ntpHourly"><thead><tr><th>Hour</th><th class="n">Units</th><th class="n">ETI Rate</th><th class="n">Plan</th><th class="n">% to Plan</th><th class="n">STP %</th></tr></thead><tbody></tbody></table>
+    </div>
+  </section>
+
+  <!-- ===== Dock / Decant ===== -->
+  <section class="panel-tab" id="p-dock">
+    <div class="kpis k4" id="dockKpis"></div>
+    <div class="grid2">
+      <div class="panel"><h2>Dock Status — Doors</h2>
+        <table id="dockTbl"><thead><tr><th>Door</th><th>Trailer</th><th>Status</th><th class="n">Pallets</th><th class="n">Units</th><th class="n">Decant CPH</th><th class="n">Dwell</th></tr></thead><tbody></tbody></table>
+      </div>
+      <div class="panel"><h2>Decant Lines</h2>
+        <table id="decTbl"><thead><tr><th>Line</th><th class="n">FPP</th><th class="n">CPH</th><th class="n">Smalls %</th><th class="n">UPB</th><th>Status</th></tr></thead><tbody></tbody></table>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===== Stow ===== -->
+  <section class="panel-tab" id="p-stow">
+    <div class="kpis" id="stowKpis"></div>
+    <div class="panel"><h2>Floor Grid (throughput by area)</h2><div class="floor-grid" id="floor"></div></div>
+    <div class="grid2">
+      <div class="panel">
+        <div class="colhead">PRODUCTIVITY</div>
+        <div class="perf-cols">
+          <div class="scrollcol top"><h3>▲ Top performers</h3><table id="top"><thead><tr><th>Station</th><th>AA</th><th class="n">Rate</th><th class="n">% Tgt</th></tr></thead><tbody></tbody></table></div>
+          <div class="scrollcol bot"><h3>▼ Bottom performers</h3><table id="bot"><thead><tr><th>Station</th><th>AA</th><th class="n">Rate</th><th class="n">% Tgt</th></tr></thead><tbody></tbody></table></div>
+        </div>
+      </div>
+      <div class="panel">
+        <div class="colhead">QUALITY</div>
+        <div class="gca">
+          <b>Guided Coaching (GCA)</b> — <span id="gcaCount">0</span> associates with open coaching this interval.
+          <div class="note" style="margin-top:4px">Surfaced from the guided-coaching presence list (mock).</div>
+        </div>
+        <table id="qual"><thead><tr><th>Floor</th><th class="n">NME</th><th class="n">PC99</th><th class="n">DPMO</th></tr></thead><tbody></tbody></table>
+      </div>
+    </div>
+    <div class="panel">
+      <h2>All Associates <span style="font-weight:400;text-transform:none">(click a header to sort)</span></h2>
+      <table id="all"><thead><tr>
+        <th data-k="station">Station</th><th data-k="name">AA</th><th data-k="floor">Floor</th>
+        <th data-k="side">Side</th><th data-k="units" class="n">Units</th><th data-k="rate" class="n">Rate</th><th data-k="pct" class="n">% Tgt</th>
+      </tr></thead><tbody></tbody></table>
+    </div>
+  </section>
+
+  <!-- ===== DEA (reserved) ===== -->
+  <section class="panel-tab" id="p-dea">
+    <div class="panel">
+      <h2>DEA</h2>
+      <p class="note">Quality metrics live on the <b>Stow</b> tab (right column). This DEA tab is
+      reserved for upcoming DEA tracking.</p>
+    </div>
+  </section>
+</div>
+
+<div class="foot">Mock demo — all names, stations, trailers, and numbers are synthetic. No live systems, no authentication, no real data.</div>
+
+<script>
+const SIDES=["East","North","West","South"],FLOORS=["A01","A02","A03","A04"];
+const SMALL_GOAL=400,MED_GOAL=200;
+function rnd(s){let x=Math.sin(s)*10000;return x-Math.floor(x);}
+function kpi(lab,val,sub,cls){return `<div class="kpi ${cls||''}"><div class="lab">${lab}</div><div class="val">${val}</div><div class="sub">${sub||''}</div></div>`;}
+function lp(p){return `<span class="pill ${p>=100?'mk':'ms'}">${p}%</span>`;}
+function stat(label,kind){return `<span class="pill ${kind}">${label}</span>`;}
+
+function buildAssociates(){
+  const names=["Associate A","Associate B","Associate C","Associate D","Associate E","Associate F","Associate G","Associate H","Associate I","Associate J","Associate K","Associate L","Associate M","Associate N","Associate O","Associate P","Associate Q","Associate R","Associate S","Associate T"];
+  return names.map((n,i)=>{
+    const floor=FLOORS[i%4],side=SIDES[(i>>1)%4];
+    const smallU=Math.round(80+rnd(i+1)*260),medU=Math.round(40+rnd(i+9)*160);
+    const hrs=1.4+rnd(i+5)*0.9,smallShare=smallU/(smallU+medU);
+    const target=smallShare*SMALL_GOAL+(1-smallShare)*MED_GOAL;
+    const actual=(smallU+medU)/hrs,pct=actual/target;
+    const station=(FLOORS.indexOf(floor)+1)*1000+(SIDES.indexOf(side)+1)*100+(i+1);
+    return {station,name:n,floor,side,units:smallU+medU,rate:Math.round(actual),pct:+pct.toFixed(2),target:Math.round(target)};
+  });
+}
+let DATA=[];
+function filtered(){const f=document.getElementById('f').value,s=document.getElementById('s').value;
+  return DATA.filter(a=>(!f||a.floor===f)&&(!s||a.side===s));}
+
+// ---------- NTP ----------
+function renderNTP(){
+  document.getElementById('ntpKpis').innerHTML=[
+    kpi("IB — % to LP","103%","inbound total","good"),
+    kpi("ALPS Volume","48,250","units"),
+    kpi("ALPS Hours","612","clocked"),
+    kpi("ETI Rate","287","units/hr","good"),
+    kpi("STP %","97.1%","ship-to-plan"),
+    kpi("OOWA %","2.4%","out-of-work","bad")
+  ].join('');
+  const fns=[["Receive",18200,88],["Decant",12400,78],["Stow",17650,73],["Replen",6100,27]];
+  let tv=0,th=0;
+  document.querySelector('#ntpBridge tbody').innerHTML=fns.map(([f,v,h])=>{
+    const r=Math.round(v/h),plan=Math.round(r*(0.9+rnd(v)*0.25)),pct=Math.round(r/plan*100);
+    tv+=v;th+=h;
+    return `<tr><td>${f}</td><td class="n">${v.toLocaleString()}</td><td class="n">${h}</td><td class="n">${r}</td><td class="n">${plan}</td><td class="n">${lp(pct)}</td></tr>`;}).join('');
+  const tr=Math.round(tv/th);
+  document.getElementById('ntpTot').innerHTML=`<td><b>IB Total</b></td><td class="n"><b>${tv.toLocaleString()}</b></td><td class="n"><b>${th}</b></td><td class="n"><b>${tr}</b></td><td class="n">—</td><td class="n">${lp(103)}</td>`;
+  const dec=[["Decant FPP","1.42","1.50","wn"],["Decant CPH","318","300","mk"],["Decant Smalls %","61%","55%","mk"],["AR Decant %","44%","50%","ms"],["AR Decant UPB","3.8","4.0","wn"],["Replen %","92%","90%","mk"]];
+  document.querySelector('#ntpDecant tbody').innerHTML=dec.map(([k,v,t,kind])=>
+    `<tr><td>${k}</td><td class="n">${v}</td><td class="n">${t}</td><td>${stat(kind==='mk'?'On target':kind==='wn'?'Watch':'Below',kind)}</td></tr>`).join('');
+  // hourly bridge
+  let rows="";
+  for(let hr=6;hr<=12;hr++){
+    const u=Math.round(2200+rnd(hr)*1400),rate=Math.round(240+rnd(hr+2)*90),plan=Math.round(260+rnd(hr+5)*40);
+    const pct=Math.round(rate/plan*100),stp=(95+rnd(hr+3)*4).toFixed(1);
+    rows+=`<tr><td>${String(hr).padStart(2,'0')}:00</td><td class="n">${u.toLocaleString()}</td><td class="n">${rate}</td><td class="n">${plan}</td><td class="n">${lp(pct)}</td><td class="n">${stp}%</td></tr>`;
+  }
+  document.querySelector('#ntpHourly tbody').innerHTML=rows;
+}
+
+// ---------- Dock / Decant ----------
+function renderDock(){
+  document.getElementById('dockKpis').innerHTML=[
+    kpi("Trailers","14","on dock"),
+    kpi("Pallets","386","staged"),
+    kpi("Receive Units","18,200","this shift"),
+    kpi("Decant CPH","318","cases/hr","good")
+  ].join('');
+  const sset=[["Unloading","st"],["Staged","wn"],["Decanting","mk"],["Empty","ms"]];
+  let rows="";
+  for(let i=1;i<=12;i++){
+    const [s,kind]=sset[Math.floor(rnd(i*3)*4)];
+    const pal=Math.round(10+rnd(i*5)*40),units=pal*Math.round(28+rnd(i)*10),cph=Math.round(260+rnd(i*7)*120),dwell=Math.round(5+rnd(i*2)*55);
+    rows+=`<tr><td>D${String(i).padStart(2,'0')}</td><td>TRL-${1000+i}</td><td>${stat(s,kind)}</td><td class="n">${pal}</td><td class="n">${units.toLocaleString()}</td><td class="n">${s==='Decanting'?cph:'—'}</td><td class="n">${dwell}m</td></tr>`;
+  }
+  document.querySelector('#dockTbl tbody').innerHTML=rows;
+  // decant lines
+  let dl="";
+  for(let i=1;i<=6;i++){
+    const fpp=(1.2+rnd(i)*0.6).toFixed(2),cph=Math.round(280+rnd(i+4)*120),sm=Math.round(50+rnd(i+2)*25),upb=(3.2+rnd(i+1)*1.4).toFixed(1);
+    const ok=cph>=300,kind=ok?'mk':(cph>=270?'wn':'ms');
+    dl+=`<tr><td>Line ${i}</td><td class="n">${fpp}</td><td class="n">${cph}</td><td class="n">${sm}%</td><td class="n">${upb}</td><td>${stat(ok?'On target':kind==='wn'?'Watch':'Below',kind)}</td></tr>`;
+  }
+  document.querySelector('#decTbl tbody').innerHTML=dl;
+}
+
+// ---------- Stow ----------
+let sortK='pct',sortAsc=false;
+function renderStow(){
+  DATA=buildAssociates();const rows=filtered();
+  const totU=rows.reduce((a,b)=>a+b.units,0),avgR=Math.round(rows.reduce((a,b)=>a+b.rate,0)/rows.length);
+  const making=rows.filter(r=>r.pct>=1).length;
+  document.getElementById('stowKpis').innerHTML=[
+    kpi("ETI Rate",avgR,"units/hr","good"),kpi("STP %","97.3%","ship-to-plan"),
+    kpi("% to Plan","101%","vs target","good"),kpi("Stow Rate",avgR,"blended"),
+    kpi("Making Rate",making+"/"+rows.length,"associates","good"),kpi("Total Units",totU.toLocaleString(),"interval")
+  ].join('');
+  document.getElementById('floor').innerHTML=FLOORS.map(fl=>{
+    const g=rows.filter(r=>r.floor===fl),u=g.reduce((a,b)=>a+b.units,0),pc=Math.min(100,Math.round(u/900*100));
+    return `<div class="cell"><div class="h">${fl}</div><div>${g.length} AAs · ${u.toLocaleString()} units</div><div class="bar"><i style="width:${pc}%"></i></div></div>`;
+  }).join('');
+  document.getElementById('gcaCount').textContent=rows.filter(r=>r.pct<0.9).length;
+  document.querySelector('#qual tbody').innerHTML=FLOORS.map((fl,i)=>
+    `<tr><td>${fl}</td><td class="n">${(2+rnd(i+2)*3).toFixed(1)}%</td><td class="n">${(1+rnd(i+4)*2).toFixed(1)}%</td><td class="n">${Math.round(600+rnd(i+6)*500)}</td></tr>`).join('');
+  const mk=[...rows].filter(r=>r.pct>=1).sort((a,b)=>b.pct-a.pct).slice(0,8);
+  const ms=[...rows].filter(r=>r.pct<1).sort((a,b)=>a.pct-b.pct).slice(0,8);
+  const prow=r=>`<tr><td>${r.station}</td><td>${r.name}</td><td class="n">${r.rate}</td><td class="n"><span class="pill ${r.pct>=1?'mk':'ms'}">${Math.round(r.pct*100)}%</span></td></tr>`;
+  document.querySelector('#top tbody').innerHTML=mk.map(prow).join('')||'<tr><td colspan=4>—</td></tr>';
+  document.querySelector('#bot tbody').innerHTML=ms.map(prow).join('')||'<tr><td colspan=4>—</td></tr>';
+  renderAll(rows);
+}
+function renderAll(rows){
+  const sorted=[...rows].sort((a,b)=>{const x=a[sortK],y=b[sortK];
+    if(typeof x==='number')return sortAsc?x-y:y-x;return sortAsc?(''+x).localeCompare(y):(''+y).localeCompare(x);});
+  document.querySelector('#all tbody').innerHTML=sorted.map(r=>
+    `<tr><td>${r.station}</td><td>${r.name}</td><td>${r.floor}</td><td>${r.side}</td><td class="n">${r.units}</td><td class="n">${r.rate}</td><td class="n"><span class="pill ${r.pct>=1?'mk':'ms'}">${Math.round(r.pct*100)}%</span></td></tr>`).join('');
+}
+document.querySelectorAll('#all th').forEach(th=>th.onclick=()=>{const k=th.dataset.k;if(!k)return;
+  if(sortK===k)sortAsc=!sortAsc;else{sortK=k;sortAsc=false;}renderAll(filtered());});
+
+document.querySelectorAll('.tab').forEach(t=>t.onclick=()=>{
+  document.querySelectorAll('.tab').forEach(x=>x.classList.remove('active'));
+  document.querySelectorAll('.panel-tab').forEach(x=>x.classList.remove('active'));
+  t.classList.add('active');document.getElementById('p-'+t.dataset.tab).classList.add('active');
+});
+function runAll(){renderNTP();renderDock();renderStow();}
+document.getElementById('run').onclick=runAll;
+['f','s'].forEach(id=>document.getElementById(id).onchange=renderStow);
+runAll();
+</script>
+</body>
+</html>
